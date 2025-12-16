@@ -35,12 +35,12 @@ const handleLogin = async (username, password) => {
             username,
             password
         });
-
+        
         if (request.status === httpStatus.OK) {
             localStorage.setItem("token", request.data.token);
             setUserData(request.data.user);
             // router("/home");
-            return { success: true }; // Return success
+            return { success: true }; 
         }
     } catch (err) {
         // Return the error so your Login page can show "User Not Found" or "Wrong Password"
