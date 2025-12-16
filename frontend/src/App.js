@@ -2,12 +2,15 @@ import './App.css';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import LandingPage from './pages/landing';
 import Authentication from './pages/authentication';
+import { AuthProvider } from './contexts/AuthContexts';
 
 function App() {
   return (
     <div className="App">
 
       <Router>
+
+        <AuthProvider>
 
         <Routes>
 
@@ -17,7 +20,8 @@ function App() {
 
 
         </Routes>
-
+        
+        </AuthProvider>
       </Router>
     </div>
   );

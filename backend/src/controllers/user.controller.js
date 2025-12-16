@@ -6,31 +6,32 @@ import crypto from "crypto";
 
 
 const login = async (req, res) => {
-
     const { username, password } = req.body;
 
-    if(!username || !password) {
-        return res.status(400).json({message: "Please Provide"})
+    if (!username || !password) {
+        return res.status(400).json({ message: "Please Provide credentials" });
     }
 
     try {
-        const user = await User.findOne({username});
-
-        if(!user) {
-            return res.status(httpStatus.NOT_FOUND).json({message: "User Not Found"})
+        const user = await User.findOne({ username });
+        if (!user) {
+            return res.status(httpStatus.NOT_FOUND).json({ message: "User Not Found" });
         }
 
-    if (bcrypt.compare(password, user.password)) {
-    let token = crypto.randomBytes(20).toString("hex");
+        // ADD 'await' HERE
+        const isMatch = await bcrypt.compare(password, user.password);
 
-    user.token = token;
-    await user.save();
-    return res.status(httpStatus.OK).json({ token: token })
-    }
-
+        if (isMatch) {
+            let token = crypto.randomBytes(20).toString("hex");
+            user.token = token;
+            await user.save();
+            return res.status(httpStatus.OK).json({ token: token, user: user });
+        } else {
+            return res.status(httpStatus.UNAUTHORIZED).json({ message: "Invalid Password" });
+        }
 
     } catch (e) {
-      return res.status(500).json({ message: `Something went wrong ${e}`})
+        return res.status(500).json({ message: `Something went wrong ${e}` });
     }
 }
 
@@ -41,11 +42,14 @@ const login = async (req, res) => {
 const register = async (req, res) => {
   const { name, username, password } = req.body;
 
+  if (!name || !username || !password) {
+        return res.status(400).json({ message: "All fields are required" });
+    }
 
   try {
     const existingUser = await User.findOne({ username });
     if (existingUser) {
-        return res.status(httpStatus.FOUND).json({ message: "User already exists" });
+        return res.status(httpStatus.CONFLICT).json({ message: "User already exists" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
