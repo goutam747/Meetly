@@ -19,9 +19,9 @@ const login = async (req, res) => {
         }
 
         
-        const isMatch = await bcrypt.compare(password, user.password);
+        const isPasswordCorrect = await bcrypt.compare(password, user.password);
 
-        if (isMatch) {
+        if (isPasswordCorrect) {
             let token = crypto.randomBytes(20).toString("hex");
             user.token = token;
             await user.save();
