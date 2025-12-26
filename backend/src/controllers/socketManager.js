@@ -22,6 +22,7 @@ export const connectToSocket = (server) => {//Socket Input/Output → IO
 
 
   io.on("connection",(socket) =>{
+    console.log("SOMETHING CONNECTED");
 
     socket.on("join-call", (path) => {
 
