@@ -1,11 +1,16 @@
-import React, { useEffect, useRef, useState } from "react";
-import { io } from "socket.io-client";
-import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
-import { Input } from "@mui/base";
-
-import "../styles/videoComponent.module.css";
-
+import React, { useEffect, useRef, useState } from 'react'
+import io from "socket.io-client";
+import { Badge, IconButton, TextField } from '@mui/material';
+import { Button } from '@mui/material';
+import VideocamIcon from '@mui/icons-material/Videocam';
+import VideocamOffIcon from '@mui/icons-material/VideocamOff'
+import styles from "../styles/videoComponent.module.css";
+import CallEndIcon from '@mui/icons-material/CallEnd'
+import MicIcon from '@mui/icons-material/Mic'
+import MicOffIcon from '@mui/icons-material/MicOff'
+import ScreenShareIcon from '@mui/icons-material/ScreenShare'
+import StopScreenShareIcon from '@mui/icons-material/StopScreenShare'
+import ChatIcon from '@mui/icons-material/Chat'
 
 
 
@@ -41,13 +46,13 @@ let [screen, setScreen] = useState();
 
 let [showModal, setModal] = useState();
 
-let [screenAvailable, setScreenAvailable] = useState();
+let [screenAvailable, setScreenAvailable] = useState(false);
 
 let [messages, setMessages] = useState([]);
 
 let [message, setMessage] = useState("");
 
-let [newMessages, setNewMessages] = useState(0);
+let [newMessages, setNewMessages] = useState(3);
 
 let [askForUsername, setAskForUsername] = useState(true);
 
@@ -101,6 +106,10 @@ const getPermissions = async () => {
 
 useEffect(() =>{
   getPermissions();
+
+    if (navigator.mediaDevices.getDisplayMedia) {
+    setScreenAvailable(true);
+  }
 },  [])
 
 
@@ -291,7 +300,7 @@ socketRef.current.on("connect", () => {
           socketId: socketListId,
           stream: event.stream,
           autoPlay: true,
-          playsinline: true
+          playsInline: true
           }
 
           setVideos(videos => {
@@ -362,6 +371,16 @@ let connect = () => {
     getMedia();
 }
 
+let handleVideo = () => {
+    setVideo(!video);
+    // getUserMedia();
+}
+let handleAudio = () => {
+    setAudio(!audio)
+    // getUserMedia();
+}
+
+
   return (
     <div>
         {askForUsername === true ?
@@ -379,13 +398,40 @@ let connect = () => {
 
           </div> : 
           
-          <div className='meetVideoContainer'>
-           
-          <video className='meetUserVideo' ref={localVideoRef} autoPlay muted></video>
+          <div className={styles.meetVideoContainer}>
 
+          <div className={styles.buttonContainers}>
+            <IconButton onClick={handleVideo} style= {{color:"white"}}>
+              {(video===true) ? <VideocamIcon /> : <VideocamOffIcon />}
+            </IconButton>
+            <IconButton style={{color: "red"}}>
+                <CallEndIcon />
+            </IconButton>
+            <IconButton onClick={handleAudio} style={{color: "white"}}>
+                {audio === true ? <MicIcon /> : <MicOffIcon/>}
+            </IconButton>
+            {screenAvailable === true ?
+            <IconButton style={{color: "white"}}>
+                {screen === true ? <ScreenShareIcon /> : <StopScreenShareIcon/>}
+            </IconButton> : <></>}
+
+            <Badge badgeContent={newMessages} max={999} color='secondary'>
+            <IconButton style={{color: "white"}}>
+                <ChatIcon />
+            </IconButton>
+            </Badge>
+                
+          </div>
+
+           
+
+
+
+          <video className={styles.meetUserVideo} ref={localVideoRef} autoPlay muted></video>
+
+          <div className={styles.conferenceView}>
           {videos.map((video)=>(
-              <div key={video.socketId}>
-                <h2>{video.socketId}</h2>
+              <div  key={video.socketId}>
 
                 <video
                 data-socket={video.socketId}
@@ -395,12 +441,15 @@ let connect = () => {
                         }
                       }}
                  autoPlay
+                 
                 >
                      
 
                 </video>
               </div>
             ))}
+           </div>
+
 
            </div>
           
