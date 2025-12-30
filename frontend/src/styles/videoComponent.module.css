@@ -9,7 +9,7 @@
     bottom: 10vh;
     height: 25vh;
     width: auto;
-    right: 0;
+    left: 0;
     border-radius: 20px;
 }
 
@@ -23,7 +23,7 @@
 
 
 .buttonContainers svg{
-    font-size: 3rem;
+    font-size: 2.5rem;
 }
 
 
@@ -39,3 +39,24 @@
     min-width: 30vw;
     border-radius: 10px;
 }
+
+.chatRoom {
+  position: absolute;
+  height: 90vh;
+  right: 0;
+  background: white;
+  border-radius: 10px;
+  width: 30vw;
+  padding-inline: 20px;
+}
+
+.chatContainer {
+  position: relative;
+  height: 100%;
+}
+
+.chattingArea {
+  position: absolute;
+  bottom: 0;
+}
+

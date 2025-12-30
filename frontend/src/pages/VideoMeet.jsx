@@ -11,6 +11,7 @@ import MicOffIcon from '@mui/icons-material/MicOff'
 import ScreenShareIcon from '@mui/icons-material/ScreenShare'
 import StopScreenShareIcon from '@mui/icons-material/StopScreenShare'
 import ChatIcon from '@mui/icons-material/Chat'
+import { useNavigate } from 'react-router-dom';
 
 
 
@@ -44,7 +45,7 @@ let [audio, setAudio] = useState();
 
 let [screen, setScreen] = useState();
 
-let [showModal, setModal] = useState();
+let [showModal, setModal] = useState(true);
 
 let [screenAvailable, setScreenAvailable] = useState(false);
 
@@ -150,12 +151,9 @@ stream.getTracks().forEach(track => track.onended = () => {
         tracks.forEach(track => track.stop())
     } catch (e) { console.log(e) }
 
-    //TODO BlackSilence
-      let blackSilence = (...args) => new MediaStream([black(...args), silence()])
-      window.localStream = blackSilence();
-      localVideoRef.current.srcObject = window.localStream;
-
-
+    let blackSilence = (...args) => new MediaStream([black(...args), silence()])
+    window.localStream = blackSilence();
+    localVideoRef.current.srcObject = window.localStream;
 
     for (let id in connections) {
     connections[id].addStream(window.localStream)
@@ -216,7 +214,7 @@ useEffect(() => {
 
 
 
-// TODO
+
 let gotMessageFromServer = (fromId, message) => {
     var signal = JSON.parse(message);
 
@@ -248,9 +246,15 @@ let gotMessageFromServer = (fromId, message) => {
 
 
 //TODO addMessage
-let addMessage = () =>{
-
-}
+let addMessage = (data, sender, socketIdSender) => {
+    setMessages((prevMessages) => [
+        ...prevMessages,
+        { sender: sender, data: data }
+    ]);
+    if (socketIdSender !== socketIdRef.current) {
+        setNewMessages((prevNewMessages) => prevNewMessages + 1);
+    }
+};
 
 
 let connectToSocketServer = () => {
@@ -366,6 +370,10 @@ let getMedia = () => {
     connectToSocketServer();
 }
 
+
+
+let routeTo = useNavigate();
+
 let connect = () => {
     setAskForUsername(false);
     getMedia();
@@ -378,6 +386,82 @@ let handleVideo = () => {
 let handleAudio = () => {
     setAudio(!audio)
     // getUserMedia();
+}
+
+
+
+    let getDislayMediaSuccess = (stream) => {
+        try {
+            window.localStream.getTracks().forEach(track => track.stop())
+        } catch (e) { console.log(e) }
+
+        window.localStream = stream
+        localVideoRef.current.srcObject = stream
+
+        for (let id in connections) {
+            if (id === socketIdRef.current) continue
+
+            connections[id].addStream(window.localStream)
+
+            connections[id].createOffer().then((description) => {
+                connections[id].setLocalDescription(description)
+                    .then(() => {
+                        socketRef.current.emit('signal', id, JSON.stringify({ 'sdp': connections[id].localDescription }))
+                    })
+                    .catch(e => console.log(e))
+            })
+
+    stream.getTracks().forEach(track => track.onended = () => {
+    setScreen(false);
+
+    try {
+        let tracks = localVideoRef.current.srcObject.getTracks()
+        tracks.forEach(track => track.stop())
+    } catch (e) { console.log(e) }
+
+    let blackSilence = (...args) => new MediaStream([black(...args), silence()])
+    window.localStream = blackSilence();
+    localVideoRef.current.srcObject = window.localStream;
+
+    getUserMedia();
+    })
+  }
+}
+
+let getDislayMedia = () => {
+    if (screen) {
+        if (navigator.mediaDevices.getDisplayMedia) {
+            navigator.mediaDevices.getDisplayMedia({ video: true, audio: true })
+                .then(getDislayMediaSuccess)
+                .then((stream) => { })
+                .catch((e) => console.log(e))
+        }
+    }
+}
+
+useEffect(() => {
+    if (screen !== undefined) {
+        getDislayMedia();
+    }
+}, [screen])
+
+let handleScreen = () => {
+    setScreen(!screen);
+}
+
+let handleEndCall = () => {
+    try {
+        let tracks = localVideoref.current.srcObject.getTracks()
+        tracks.forEach(track => track.stop())
+    } catch (e) { }
+    routeTo("/home")
+}
+
+    
+
+let sendMessage = () => {
+  socketRef.current.emit("chat-message", message, username);
+  setMessage("");
 }
 
 
@@ -400,22 +484,51 @@ let handleAudio = () => {
           
           <div className={styles.meetVideoContainer}>
 
+            {showModal ? <div className={styles.chatRoom}>
+
+            <div className={styles.chatContainer}>
+                          <h1>Chat</h1>
+                            
+                          <div className={styles.chattingDisplay}>
+                                  {messages.length !== 0 ? messages.map((item, index) => {
+
+                                    console.log(messages)
+                                    return (
+                                        <div style={{ marginBottom: "20px" }} key={index}>
+                                            <p style={{ fontWeight: "bold" }}>{item.sender}</p>
+                                            <p>{item.data}</p>
+                                        </div>
+                                    )
+                                }) : <p>No Messages Yet</p>}   
+                          </div>
+
+                          <div className={styles.chattingArea}>
+                          <TextField value={message} onChange={(e) => setMessage(e.target.value)} id="outlined-basic" label="Message" variant="outlined" />
+                          <Button variant='contained' onClick={sendMessage}>Send</Button>
+                          </div>
+
+            </div>
+
+           </div> : <></>}
+           
+
+
           <div className={styles.buttonContainers}>
             <IconButton onClick={handleVideo} style= {{color:"white"}}>
               {(video===true) ? <VideocamIcon /> : <VideocamOffIcon />}
             </IconButton>
-            <IconButton style={{color: "red"}}>
+            <IconButton onClick={handleEndCall} style={{color: "red"}}>
                 <CallEndIcon />
             </IconButton>
             <IconButton onClick={handleAudio} style={{color: "white"}}>
                 {audio === true ? <MicIcon /> : <MicOffIcon/>}
             </IconButton>
             {screenAvailable === true ?
-            <IconButton style={{color: "white"}}>
+            <IconButton onClick={handleScreen} style={{color: "white"}}>
                 {screen === true ? <ScreenShareIcon /> : <StopScreenShareIcon/>}
             </IconButton> : <></>}
 
-            <Badge badgeContent={newMessages} max={999} color='secondary'>
+            <Badge badgeContent={newMessages} onClick={() => setModal(!showModal)} max={999} color='secondary'>
             <IconButton style={{color: "white"}}>
                 <ChatIcon />
             </IconButton>
@@ -458,3 +571,6 @@ let handleAudio = () => {
     </div>
   )
 }
+
+
+
