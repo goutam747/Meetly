@@ -17,7 +17,7 @@ import { useNavigate } from 'react-router-dom';
 
 
 
-const server_url = "http://localhost:8000";
+const server_url = "http://localhost:8000";     //TODO
 
 var connections = {};
 
@@ -135,7 +135,7 @@ for (let id in connections) {
     connections[id].createOffer().then((description) => {
         connections[id].setLocalDescription(description)
         .then(() => {
-            socketIdRef.current.emit("signal", id, JSON.stringify({"sdp": connections[id].localDescription}))
+            socketRef.current.emit("signal", id, JSON.stringify({"sdp": connections[id].localDescription}))
         })
         .catch(e => console.log(e))
     })
@@ -218,7 +218,7 @@ useEffect(() => {
 let gotMessageFromServer = (fromId, message) => {
     var signal = JSON.parse(message);
 
-    if (fromId !== socketIdRef.current) {
+    if (fromId !== socketRef.current.id) {
         if (signal.sdp) {
             connections[fromId]
                 .setRemoteDescription(new RTCSessionDescription(signal.sdp))
@@ -226,7 +226,7 @@ let gotMessageFromServer = (fromId, message) => {
                     if (signal.sdp.type === "offer") {
                         connections[fromId].createAnswer().then((description) => {
                         connections[fromId].setLocalDescription(description).then(() => {    
-                            socketIdRef.current.emit("signal",fromId,JSON.stringify({sdp: connections[fromId].localDescription}))                               
+                            socketRef.current.emit("signal",fromId,JSON.stringify({sdp: connections[fromId].localDescription}))                               
                         }).catch(e => console.log(e))              
                       }).catch(e => console.log(e))                      
                      }                       
@@ -451,7 +451,7 @@ let handleScreen = () => {
 
 let handleEndCall = () => {
     try {
-        let tracks = localVideoref.current.srcObject.getTracks()
+        let tracks = localVideoRef.current.srcObject.getTracks()
         tracks.forEach(track => track.stop())
     } catch (e) { }
     routeTo("/home")

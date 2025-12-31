@@ -22,11 +22,11 @@ function HomeComponent() {
     return (
         <>
 
-            <div className="navBar">
+            <div className="navBar" >
 
-                <div style={{ display: "flex", alignItems: "center" }}>
+                <div style={{ display: "flex", alignItems: "center"  }}>
 
-                    <h2>Apna Video Call</h2>
+                    <h2>Meetly</h2>
                 </div>
 
                 <div style={{ display: "flex", alignItems: "center" }}>
@@ -54,7 +54,7 @@ function HomeComponent() {
             <div className="meetContainer">
                 <div className="leftPanel">
                     <div>
-                        <h2>Providing Quality Video Call Just Like Quality Education</h2>
+                        <h2>Making Remote Connections Feel Natural And Engaging.</h2>
 
                         <div style={{ display: 'flex', gap: "10px" }}>
 
@@ -68,9 +68,10 @@ function HomeComponent() {
                     <img srcSet='/logo3.png' alt="" />
                 </div>
             </div>
+            
         </>
     )
 }
 
 
-export default withAuth(HomeComponent)
+export default withAuth(HomeComponent);
