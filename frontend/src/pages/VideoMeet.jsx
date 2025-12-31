@@ -467,20 +467,40 @@ let sendMessage = () => {
 
   return (
     <div>
-        {askForUsername === true ?
+{askForUsername === true ? (
+    <div className={styles.lobbyContainer}>
+        <div className={styles.lobbyCard}>
+            <div className={styles.lobbyVideoPreview}>
+                <video ref={localVideoRef} autoPlay muted></video>
+                <div className={styles.videoOverlay}>
+                    <p>{ "Your Preview"}</p>
+                </div>
+            </div>
 
-          <div>
-
-          <h2>Enter into Lobby</h2>
-          <TextField id="outlined-basic" label="Username" value ={username} onChange={e => setUsername(e.target.value)} variant="outlined" />
-          <Button variant="contained" onClick ={connect}>Connect</Button>
-
-          <div>
-          <video ref={localVideoRef} autoPlay muted></video>
-          </div>
-
-
-          </div> : 
+            <div className={styles.lobbyActionArea}>
+                <h2>Join Meeting</h2>
+                <TextField 
+                    fullWidth
+                    id="outlined-basic" 
+                    label="Display Name" 
+                    value={username} 
+                    onChange={e => setUsername(e.target.value)} 
+                    variant="outlined" 
+                    className={styles.inputField}
+                />
+                <Button 
+                    fullWidth
+                    variant="contained" 
+                    onClick={connect}
+                    className={styles.joinButton}
+                    disabled={!username.trim()}
+                >
+                    Proceed
+                </Button>
+            </div>
+        </div>
+    </div>
+ ) : 
           
           <div className={styles.meetVideoContainer}>
 

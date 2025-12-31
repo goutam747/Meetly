@@ -60,3 +60,81 @@
   bottom: 0;
 }
 
+
+
+/* Container to center everything on the screen */
+.lobbyContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #c2c9d3; 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* The central card */
+.lobbyCard {
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 450px;
+    gap: 1.5rem;
+}
+
+/* Video Preview Styling */
+.lobbyVideoPreview {
+    position: relative;
+    width: 100%;
+    height: 250px;
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+}
+
+.lobbyVideoPreview video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1); 
+}
+
+/* Label overlay on the video */
+.videoOverlay {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    background: rgba(219, 139, 18, 0.8);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+}
+
+/* Text and Buttons */
+.lobbyActionArea h2 {
+    margin-bottom: 1rem;
+    color: #333;
+    text-align: center;
+    font-weight: 600;
+}
+
+.inputField {
+    margin-bottom: 1.5rem !important;
+}
+
+.joinButton {
+    padding: 12px !important;
+    font-size: 1rem !important;
+    text-transform: none !important;
+    background-color: #7297e8 !important; 
+    transition: background-color 0.3s ease !important;
+}
+
+.joinButton:hover {
+    background-color: #1d4ed8 !important;
+}
