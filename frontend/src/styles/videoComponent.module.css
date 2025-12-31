@@ -34,11 +34,15 @@
 }
 
 .conferenceView video{
-    width: 40vw;
-    height: 20vh;
+    width: 1vw;
+    height: 60vh;
     min-width: 30vw;
     border-radius: 10px;
 }
+
+
+
+
 
 .chatRoom {
   position: absolute;
@@ -138,3 +142,8 @@
 .joinButton:hover {
     background-color: #1d4ed8 !important;
 }
+
+
+
+
+

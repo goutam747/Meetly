@@ -53,7 +53,7 @@ let [messages, setMessages] = useState([]);
 
 let [message, setMessage] = useState("");
 
-let [newMessages, setNewMessages] = useState(3);
+let [newMessages, setNewMessages] = useState(0);
 
 let [askForUsername, setAskForUsername] = useState(true);
 
@@ -105,13 +105,14 @@ const getPermissions = async () => {
 
 
 
-useEffect(() =>{
-  getPermissions();
+useEffect(() => {   
+    getPermissions();
 
     if (navigator.mediaDevices.getDisplayMedia) {
-    setScreenAvailable(true);
-  }
-},  [])
+        setScreenAvailable(true);
+    }
+
+}, []);
 
 
 
@@ -375,6 +376,8 @@ let getMedia = () => {
 let routeTo = useNavigate();
 
 let connect = () => {
+    setMessages([]); // <--- This ensures the chat is empty when you start
+    setNewMessages(0); // <--- This resets the badge count
     setAskForUsername(false);
     getMedia();
 }
@@ -449,13 +452,26 @@ let handleScreen = () => {
     setScreen(!screen);
 }
 
+
+
 let handleEndCall = () => {
-    try {
-        let tracks = localVideoRef.current.srcObject.getTracks()
-        tracks.forEach(track => track.stop())
-    } catch (e) { }
-    routeTo("/home")
-}
+   try {
+       if (localVideoRef.current && localVideoRef.current.srcObject) {
+             let tracks = localVideoRef.current.srcObject.getTracks();
+             tracks.forEach(track => track.stop());
+           }
+     } catch (e) { }
+
+
+
+    const token = localStorage.getItem("token"); 
+
+    if (token) {
+        window.location.href = "/home"; // Logged-in user
+    } else {
+        window.location.href = "/";     // Guest user
+    }
+};
 
     
 
@@ -510,6 +526,7 @@ let sendMessage = () => {
                           <h1>Chat</h1>
                             
                           <div className={styles.chattingDisplay}>
+                            
                                   {messages.length !== 0 ? messages.map((item, index) => {
 
                                     console.log(messages)
@@ -562,26 +579,22 @@ let sendMessage = () => {
 
           <video className={styles.meetUserVideo} ref={localVideoRef} autoPlay muted></video>
 
-          <div className={styles.conferenceView}>
-          {videos.map((video)=>(
-              <div  key={video.socketId}>
-
-                <video
+<div className={styles.conferenceView}>
+    {videos.map((video) => (
+        <div key={video.socketId} >
+            <video
                 data-socket={video.socketId}
-                ref={ref => {
-                      if (ref && video.stream) {
-                          ref.srcObject = video.stream;
-                        }
-                      }}
-                 autoPlay
-                 
-                >
-                     
-
-                </video>
-              </div>
-            ))}
-           </div>
+                autoPlay
+                playsInline
+                ref={(node) => {
+                    if (node && video.stream) {
+                        node.srcObject = video.stream;
+                    }
+                }}
+            />
+        </div>
+    ))}
+</div>
 
 
            </div>
