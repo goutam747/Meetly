@@ -3,9 +3,6 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
-import Link from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
@@ -15,6 +12,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { AuthContext } from "../contexts/AuthContexts"; // adjust path if needed
 import Snackbar from '@mui/material/Snackbar';
 import { useNavigate } from "react-router-dom";
+import Alert from '@mui/material/Alert';
 
 
 function Copyright(props) {
@@ -50,25 +48,51 @@ const { handleRegister, handleLogin } = React.useContext(AuthContext);
 
 
 
-let handleAuth = async () => {
-    try {
-        setError(""); 
-        if (formState === 0) { 
-            let result = await handleLogin(username, password);
-            if (result.success) {
-                router("/home");
-            } else {
-                setError(result.message); 
-            }
-        }
-        if (formState === 1) { 
-            let result = await handleRegister(name, username, password);
-        }
-    } catch (err) {
-        console.error("DEBUG:", err); 
-    setError(err.response?.data?.message || err.message || "An unexpected error occurred");
+const handleAuth = async () => {
+  try {
+    setError(""); // reset error
+
+    // LOGIN
+    if (formState === 0) {
+      const result = await handleLogin(username, password);
+
+      if (result.success) {
+        router("/home");
+      } else {
+        setError(result.message || "Login failed");
+      }
     }
-}
+
+    // REGISTER
+    if (formState === 1) {
+      const result = await handleRegister(name, username, password);
+
+      if (result.success) {
+        setMessage("User created successfully 🎉");
+        setOpen(true);
+
+        // switch to login tab
+        setFormState(0);
+
+        // clear fields
+        setName("");
+        setUsername("");
+        setPassword("");
+      } else {
+        setError(result.message || "Registration failed");
+      }
+    }
+
+  } catch (err) {
+    console.error("DEBUG:", err);
+    setError(
+      err.response?.data?.message ||
+      err.message ||
+      "An unexpected error occurred"
+    );
+  }
+};
+
 
 
 
@@ -179,11 +203,19 @@ let handleAuth = async () => {
     </Grid>
 
 <Snackbar
-    open={open}
-    autoHideDuration={4000}
-    onClose={() => setOpen(false)} // Add this line
-    message={message}
-/>
+  open={open}
+  autoHideDuration={4000}
+  onClose={() => setOpen(false)}
+  anchorOrigin={{ vertical: "top", horizontal: "center" }}
+>
+  <Alert
+    onClose={() => setOpen(false)}
+    severity="success"
+    variant="filled"
+  >
+    {message}
+  </Alert>
+</Snackbar>
 
 
   </ThemeProvider>

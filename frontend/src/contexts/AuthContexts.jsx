@@ -13,29 +13,44 @@ const client = axios.create({
 
 export const AuthProvider = ({ children }) => {
 
-    const authContext = useContext(AuthContext);
 
-    const [userData, setUserData] = useState(authContext);
+    const [userData, setUserData] = useState(null);
 
 
     const router = useNavigate();
 
-    const handleRegister = async (name, username, password) => {
-        try {
-            let request = await client.post("/register", {
-                name: name,
-                username: username,
-                password: password
-            })
+const handleRegister = async (name, username, password) => {
+  try {
+    const request = await client.post("/register", {
+      name,
+      username,
+      password,
+    });
 
-
-            if (request.status === httpStatus.CREATED) {
-                return request.data.message;
-            }
-        } catch (err) {
-            throw err;
-        }
+    if (request.status === httpStatus.CREATED) {
+      return {
+        success: true,
+        message: request.data?.message || "User registered successfully",
+      };
     }
+
+    // fallback (rare case)
+    return {
+      success: false,
+      message: "Registration failed",
+    };
+
+  } catch (err) {
+    return {
+      success: false,
+      message:
+        err.response?.data?.message ||
+        err.message ||
+        "Registration failed",
+    };
+  }
+};
+
 
 
 
