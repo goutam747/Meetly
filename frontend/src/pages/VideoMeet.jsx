@@ -464,7 +464,7 @@ let handleEndCall = () => {
 
      window.location.href = "/";
 
-    const token = localStorage.getItem("token"); 
+
 
 };
 
