@@ -9,31 +9,26 @@ import { Meeting } from "../models/meeting.model.js";
 
 const login = async (req, res) => {
     const { username, password } = req.body;
-
-    if (!username || !password) {
-        return res.status(400).json({ message: "Please Provide credentials" });
-    }
+    if (!username || !password) return res.status(400).json({ message: "Please Provide credentials" });
 
     try {
         const user = await User.findOne({ username });
-        if (!user) {
-            return res.status(httpStatus.NOT_FOUND).json({ message: "User Not Found" });
-        }
+        if (!user) return res.status(httpStatus.NOT_FOUND).json({ message: "User Not Found" });
 
-        
         const isPasswordCorrect = await bcrypt.compare(password, user.password);
 
         if (isPasswordCorrect) {
             let token = crypto.randomBytes(20).toString("hex");
-            user.token = token;
-            await user.save();
-            return res.status(httpStatus.OK).json({ token: token, user: user });
+            
+            await User.findByIdAndUpdate(user._id, { token: token });
+
+            return res.status(httpStatus.OK).json({ token: token });
         } else {
             return res.status(httpStatus.UNAUTHORIZED).json({ message: "Invalid Password" });
         }
-
     } catch (e) {
-        return res.status(500).json({ message: `Something went wrong ${e}` });
+        console.error(e); 
+        return res.status(500).json({ message: "Internal Server Error" });
     }
 }
 

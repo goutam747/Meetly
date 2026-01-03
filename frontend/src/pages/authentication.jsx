@@ -14,7 +14,7 @@ import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { AuthContext } from "../contexts/AuthContexts"; // adjust path if needed
 import Snackbar from '@mui/material/Snackbar';
-
+import { useNavigate } from "react-router-dom";
 
 
 function Copyright(props) {
@@ -34,10 +34,12 @@ const theme = createTheme();
 
 export default function Authentication() {
 
-const [username, setUsername] = React.useState();
-const [password, setPassword] = React.useState();
-const [name, setName] = React.useState();
-const [error, setError] = React.useState();
+const router = useNavigate();
+
+const [username, setUsername] = React.useState("");
+const [password, setPassword] = React.useState("");
+const [name, setName] = React.useState("");
+const [error, setError] = React.useState("");
 const [message, setMessage] = React.useState();
 
 const [formState, setFormState] = React.useState(0);
@@ -46,38 +48,25 @@ const [open, setOpen] = React.useState(false);
 
 const { handleRegister, handleLogin } = React.useContext(AuthContext);
 
+
+
 let handleAuth = async () => {
     try {
-        if (formState === 0) {
+        setError(""); 
+        if (formState === 0) { 
             let result = await handleLogin(username, password);
             if (result.success) {
-                // If login is successful, you might want to redirect here
-                // e.g., router("/dashboard")
+                router("/home");
             } else {
-                setError(result.message); // Set the string message
+                setError(result.message); 
             }
         }
-        
-        if (formState === 1) {
+        if (formState === 1) { 
             let result = await handleRegister(name, username, password);
-            
-            if (result.success) {
-                setUsername("");
-                setPassword("");
-                // FIX: Set the string, not the whole object
-                setMessage(result.message); 
-                setOpen(true);
-                setError("");
-                setFormState(0); // Switch to login view
-            } else {
-                // FIX: If registration fails (like 409 Conflict), set the error string
-                setError(result.message);
-            }
         }
     } catch (err) {
-        
-        console.log(err);
-        setError("An unexpected error occurred");
+        console.error("DEBUG:", err); 
+    setError(err.response?.data?.message || err.message || "An unexpected error occurred");
     }
 }
 

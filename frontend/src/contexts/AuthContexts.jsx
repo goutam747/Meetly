@@ -39,24 +39,20 @@ export const AuthProvider = ({ children }) => {
 
 
 
-    const handleLogin = async (username, password) => {
-        try {
-            let request = await client.post("/login", {
-                username: username,
-                password: password
-            });
-
-            console.log(username, password)
-            console.log(request.data)
-
-            if (request.status === httpStatus.OK) {
-                localStorage.setItem("token", request.data.token);
-                router("/home")
-            }
-        } catch (err) {
-            throw err;
+const handleLogin = async (username, password) => {
+    try {
+        let request = await client.post("/login", { username, password });
+        if (request.status === 200) {
+            localStorage.setItem("token", request.data.token);
+            return { success: true }; 
         }
+    } catch (err) {
+        return { 
+            success: false, 
+            message: err.response?.data?.message || "Server Error" 
+        };
     }
+}
 
 
 
