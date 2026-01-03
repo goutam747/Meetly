@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import express from "express";
 import { createServer } from "node:http";
 
@@ -8,6 +11,8 @@ import { connectToSocket } from "./controllers/socketManager.js";
 
 import cors from "cors";
 import userRoutes from "./routes/users.routes.js"
+
+
 
 
 
@@ -25,7 +30,7 @@ app.use("/api/v1/users",userRoutes);
 
 const start = async () => {
 
-    const connectionDb = await mongoose.connect("mongodb+srv://goutamsinghsumbria2004_db_user:RajputGoutam7889@cluster0.mjijlxh.mongodb.net/");
+    const connectionDb = await mongoose.connect(process.env.ATLASDB_URL);
 
     console.log(`MONGO CONNECTED DB HOST: ${connectionDb.connection.host}`)
     server.listen(app.get("port"), () => {
