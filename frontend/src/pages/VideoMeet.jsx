@@ -462,15 +462,10 @@ let handleEndCall = () => {
            }
      } catch (e) { }
 
-
+     window.location.href = "/";
 
     const token = localStorage.getItem("token"); 
 
-    if (token) {
-        window.location.href = "/home"; // Logged-in user
-    } else {
-        window.location.href = "/";     // Guest user
-    }
 };
 
     
